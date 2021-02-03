@@ -499,6 +499,7 @@ https://www.amazon.com/iulbrh/jmfshls/vyffuuys/
 https://www.amazon.com/cp/
 https://www.amazon.com/catzs/jaikrgrkk/as/gxug/eadhb/"""
 rows = bulk.split("\n")
-data = "{\n\t\"urls\":"+str(rows)+"\n}"
+rows = ["\""+row+"\"" for row in rows]
+data = "{\n\t\"urls\": [ "+" , ".join(rows)+" ]\n}"
 print(data)
 
