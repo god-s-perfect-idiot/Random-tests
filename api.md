@@ -510,9 +510,26 @@ const [response] = await Promise.all([
 
 > **NOTE** This race condition is handled by the `page.clickAndWait` API.
 
-#### page.clickTag(scraper, tag[, options])
+#### page.clickAndWait(selector[, options])
 
 Click an element on the page specified by its CSS selector.
+
+- `selector` <[string]> A `selector` to search for element to click. If there are multiple elements satisfying the selector, the method throws.
+- `options` <[Object]> Navigation parameters which might have the following properties:
+  - `timeout` <[number]> Maximum navigation time in milliseconds, defaults to 30 seconds, pass `0` to disable timeout. The default value can be changed by using the [page.setDefaultNavigationTimeout(timeout)](#pagesetdefaultnavigationtimeouttimeout) or [page.setDefaultTimeout(timeout)](#pagesetdefaulttimeouttimeout) methods.
+  - `waitUntil` <"load"|"domcontentloaded"|"networkidle0"|"networkidle2"|Array<PuppeteerLifeCycleMethod>> When to consider navigation succeeded, defaults to `load`. Given an array of event strings, navigation is considered to be successful after all events have been fired. Events can be either:
+    - `load` - consider navigation to be finished when the `load` event is fired.
+    - `domcontentloaded` - consider navigation to be finished when the `DOMContentLoaded` event is fired.
+    - `networkidle0` - consider navigation to be finished when there are no more than 0 network connections for at least `500` ms.
+    - `networkidle2` - consider navigation to be finished when there are no more than 2 network connections for at least `500` ms.
+- returns: <[Promise]> Promise chain which resolves when the element matching `selector` is successfully clicked and then navigation is waited on. The Promise will be rejected if there is no element matching `selector`.
+
+This method fetches an element with `selector`, scrolls it into view if needed, and then uses [page.mouse](#pagemouse) to click in the center of the element.
+If there's no element matching `selector`, the method throws an error.
+
+#### page.clickTag(scraper, tag[, options])
+
+Click an element on the page specified by its CSS selector and wait for Navigation to finish.
 
 - `scraper` <[string]]> A `scraper reference name` for the scrapex scraper configured using the references panel.
 - `tag` <[string]> A `tag` to search for element to click in the `scraper`. If there are multiple elements satisfying the selector, the method throws.
@@ -530,9 +547,31 @@ Bear in mind that if `click()` triggers a navigation event and there's a separat
 ```js
 const [response] = await Promise.all([
   page.waitForNavigation(waitOptions),
-  page.click(selector, clickOptions),
+  page.clickTag(scraper, tag, clickOptions),
 ]);
 ```
+
+> **NOTE** This race condition is handled by the `page.clickTagAndWait` API.
+
+
+#### page.clickTagAndWait(scraper, tag[, options])
+
+Click an element on the page specified by its CSS selector and wait for Navigation to finish.
+
+- `scraper` <[string]]> A `scraper reference name` for the scrapex scraper configured using the references panel.
+- `tag` <[string]> A `tag` to search for element to click in the `scraper`. If there are multiple elements satisfying the selector, the method throws.
+- `options` <[Object]> Navigation parameters which might have the following properties:
+  - `timeout` <[number]> Maximum navigation time in milliseconds, defaults to 30 seconds, pass `0` to disable timeout. The default value can be changed by using the [page.setDefaultNavigationTimeout(timeout)](#pagesetdefaultnavigationtimeouttimeout) or [page.setDefaultTimeout(timeout)](#pagesetdefaulttimeouttimeout) methods.
+  - `waitUntil` <"load"|"domcontentloaded"|"networkidle0"|"networkidle2"|Array<PuppeteerLifeCycleMethod>> When to consider navigation succeeded, defaults to `load`. Given an array of event strings, navigation is considered to be successful after all events have been fired. Events can be either:
+    - `load` - consider navigation to be finished when the `load` event is fired.
+    - `domcontentloaded` - consider navigation to be finished when the `DOMContentLoaded` event is fired.
+    - `networkidle0` - consider navigation to be finished when there are no more than 0 network connections for at least `500` ms.
+    - `networkidle2` - consider navigation to be finished when there are no more than 2 network connections for at least `500` ms.
+- returns: <[Promise]> Promise chain which resolves when the element matching `selector` is successfully clicked and then navigation is waited on. The Promise will be rejected if there is no element matching `selector`.
+
+This method fetches an element with `selector`, scrolls it into view if needed, and then uses [page.mouse](#pagemouse) to click in the center of the element.
+If there's no element matching `selector`, the method throws an error.
+
 
 #### page.close([options])
 
@@ -547,6 +586,20 @@ Closes the specified tab.
 By default, `page.close()` **does not** run beforeunload handlers.
 
 > **NOTE** if `runBeforeUnload` is passed as true, a `beforeunload` dialog might be summoned
+
+#### page.exists(selector)
+
+Checks if the specified selector exists on the page.
+
+- `selector` <[string]> A `selector` to search for element to click. If there are multiple elements satisfying the selector, the method resolves if even one exists.
+- returns: <[Promise]> Promise that resolve to either true or false depending upon the selectors existence on the page.
+
+#### page.extract(scraper)
+
+Extracts the content of the page.
+
+- `name` <[string]> Name of the scraper reference
+- returns: <[Promise]<[void]>> extracted text content of the value of the scraper.
 
 #### page.goto(url[, options])
 
@@ -603,11 +656,42 @@ Reload the page. Options are waitOptions.
 
 #### page.saveSnapshot(name)
 
+Saves the snapshot of the current page.
+
 - `name` <[string]> Name of the snapshot
 - returns: <[Promise]<[void]>> Promise which resolves to saving snapshot.
 
+#### page.scrape(scraper)
+
+Extracts the content of the page.
+
+- `name` <[string]> Name of the scraper reference
+- returns: <[Promise]<[void]>> extracted text content of the value of the scraper.
+
+> **NOTE** This API is deprecated. Please check out the extract API.
+
+
+#### page.scrapeSelector(selector[, options])
+
+Extracts the content of the page by passing a barebone scraper.
+
+- `selector` <[string]> selector to scrape on the page
+- `options` <[Object]>: 
+  - `required` <[boolean]> Whether it is a required tag
+  - `type` <[string]> What type of tag it is. eg: standard,etc
+  - `source_type` <[string]> Type of tag. dom/meta/builtin
+  - `data_type` <[string]> What is the data type extracted. text,number, etc
+  - `extractor` <[Object]>: 
+    - `type` <[string]>: type/prop/attr
+    - `name` <[string]>: href/etc
+  - `modifers` <[Array]<[Object]>>: 
+   -  `type` <[string]> regex/etc
+    - `param` <[string]>: exp
+- returns: <[Promise]<[void]>> extracted text content of the value of the scraper.
 
 #### page.select(selector, ...values)
+
+Select a checkbox on the page.
 
 - `selector` <[string]> A [selector] to query page for
 - `...values` <...[string]> Values of options to select. If the `<select>` has the `multiple` attribute, all values are considered, otherwise only the first one is taken into account.
@@ -621,9 +705,68 @@ page.select('select#colors', 'blue'); // single selection
 page.select('select#colors', 'red', 'green', 'blue'); // multiple selections
 ```
 
-Shortcut for [page.mainFrame().select()](#frameselectselector-values)
+#### page.tagExists(scraper, tag)
+
+Checks if the specified selector exists on the page.
+
+- `scraper` <[string]]> A `scraper reference name` for the scrapex scraper configured using the references panel.
+- `tag` <[string]> A `tag` to search for element to click in the `scraper`. If there are multiple elements satisfying the selector, the method resolves if even one exists.
+- returns: <[Promise]> Promise that resolve to either true or false depending upon the selectors existence on the page.
+
+
+#### page.waitFor(selectorOrFunctionOrTimeout[, options[, ...args]])
+
+Explicit time wait on the page.
+
+- `selectorOrFunctionOrTimeout` <[string]|[number]|[function]> A [selector], predicate or timeout to wait for
+- `options` <[Object]> Optional waiting parameters
+  - `visible` <[boolean]> wait for element to be present in DOM and to be visible. Defaults to `false`.
+  - `timeout` <[number]> maximum time to wait for in milliseconds. Defaults to `30000` (30 seconds). Pass `0` to disable timeout. The default value can be changed by using the [page.setDefaultTimeout(timeout)](#pagesetdefaulttimeouttimeout) method.
+  - `hidden` <[boolean]> wait for element to not be found in the DOM or to be hidden. Defaults to `false`.
+  - `polling` <[string]|[number]> An interval at which the `pageFunction` is executed, defaults to `raf`. If `polling` is a number, then it is treated as an interval in milliseconds at which the function would be executed. If `polling` is a string, then it can be one of the following values:
+    - `raf` - to constantly execute `pageFunction` in `requestAnimationFrame` callback. This is the tightest polling mode which is suitable to observe styling changes.
+    - `mutation` - to execute `pageFunction` on every DOM mutation.
+- `...args` <...[Serializable]|[JSHandle]> Arguments to pass to `pageFunction`
+- returns: <[Promise]<[JSHandle]>> Promise which resolves to a JSHandle of the success value
+
+**This method is deprecated**. You should use the more explicit API methods available:
+
+- `page.waitForSelector`
+- `page.waitForXPath`
+- `page.waitForFunction`
+- `page.waitForTimeout`
+
+This method behaves differently with respect to the type of the first parameter:
+
+- if `selectorOrFunctionOrTimeout` is a `string`, then the first argument is treated as a [selector] or [xpath], depending on whether or not it starts with '//', and the method is a shortcut for
+  [page.waitForSelector](#pagewaitforselectorselector-options) or [page.waitForXPath](#pagewaitforxpathxpath-options)
+- if `selectorOrFunctionOrTimeout` is a `function`, then the first argument is treated as a predicate to wait for and the method is a shortcut for [page.waitForFunction()](#pagewaitforfunctionpagefunction-options-args).
+- if `selectorOrFunctionOrTimeout` is a `number`, then the first argument is treated as a timeout in milliseconds and the method returns a promise which resolves after the timeout
+- otherwise, an exception is thrown
+
+```js
+// wait for selector
+await page.waitFor('.foo');
+// wait for 1 second
+await page.waitFor(1000);
+// wait for predicate
+await page.waitFor(() => !!document.querySelector('.foo'));
+```
+
+To pass arguments from node.js to the predicate of `page.waitFor` function:
+
+```js
+const selector = '.foo';
+await page.waitFor(
+  (selector) => !!document.querySelector(selector),
+  {},
+  selector
+);
+```
 
 #### page.waitForNavigation([options])
+
+Wait for page Navigation to finish.
 
 - `options` <[Object]> Navigation parameters which might have the following properties:
   - `timeout` <[number]> Maximum navigation time in milliseconds, defaults to 30 seconds, pass `0` to disable timeout. The default value can be changed by using the [page.setDefaultNavigationTimeout(timeout)](#pagesetdefaultnavigationtimeouttimeout) or [page.setDefaultTimeout(timeout)](#pagesetdefaulttimeouttimeout) methods.
@@ -642,6 +785,83 @@ const [response] = await Promise.all([
   page.waitForNavigation(), // The promise resolves after navigation has finished
   page.click('a.my-link'), // Clicking the link will indirectly cause a navigation
 ]);
+```
+
+#### page.waitForSelector(selector[, options])
+
+Wait for selector to be available on the page.
+
+- `selector` <[string]> A [selector] of an element to wait for. If there are multiple elements satisfying the selector, the method waits for all to finish.
+- `options` <[Object]> Optional waiting parameters
+  - `visible` <[boolean]> wait for element to be present in DOM and to be visible, i.e. to not have `display: none` or `visibility: hidden` CSS properties. Defaults to `false`.
+  - `hidden` <[boolean]> wait for element to not be found in the DOM or to be hidden, i.e. have `display: none` or `visibility: hidden` CSS properties. Defaults to `false`.
+  - `timeout` <[number]> maximum time to wait for in milliseconds. Defaults to `30000` (30 seconds). Pass `0` to disable timeout. The default value can be changed by using the [page.setDefaultTimeout(timeout)](#pagesetdefaulttimeouttimeout) method.
+- returns: <[Promise]<?[ElementHandle]>> Promise which resolves when element specified by selector string is added to DOM. Resolves to `null` if waiting for `hidden: true` and selector is not found in DOM.
+
+Wait for the `selector` to appear in page. If at the moment of calling
+the method the `selector` already exists, the method will return
+immediately. If the selector doesn't appear after the `timeout` milliseconds of waiting, the function will throw.
+
+This method works across navigations:
+
+```js
+const puppeteer = require('puppeteer');
+
+(async () => {
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  let currentURL;
+  page
+    .waitForSelector('img')
+    .then(() => console.log('First URL with image: ' + currentURL));
+  for (currentURL of [
+    'https://example.com',
+    'https://google.com',
+    'https://bbc.com',
+  ]) {
+    await page.goto(currentURL);
+  }
+  await browser.close();
+})();
+```
+
+#### page.waitForTag(scraper, tag[, options])
+
+Wait for selector to be available on the page, defined by a scrapex scraper. 
+
+- `scraper` <[string]]> A `scraper reference name` for the scrapex scraper configured using the references panel.
+- `tag` <[string]> A `tag` to search for element to click in the `scraper`. If there are multiple elements satisfying the selector, the method waits for all to finish.
+- `options` <[Object]> Optional waiting parameters
+  - `visible` <[boolean]> wait for element to be present in DOM and to be visible, i.e. to not have `display: none` or `visibility: hidden` CSS properties. Defaults to `false`.
+  - `hidden` <[boolean]> wait for element to not be found in the DOM or to be hidden, i.e. have `display: none` or `visibility: hidden` CSS properties. Defaults to `false`.
+  - `timeout` <[number]> maximum time to wait for in milliseconds. Defaults to `30000` (30 seconds). Pass `0` to disable timeout. The default value can be changed by using the [page.setDefaultTimeout(timeout)](#pagesetdefaulttimeouttimeout) method.
+- returns: <[Promise]<?[ElementHandle]>> Promise which resolves when element specified by selector string is added to DOM. Resolves to `null` if waiting for `hidden: true` and selector is not found in DOM.
+
+Wait for the `selector` to appear in page. If at the moment of calling
+the method the `selector` already exists, the method will return
+immediately. If the selector doesn't appear after the `timeout` milliseconds of waiting, the function will throw.
+
+This method works across navigations:
+
+```js
+const puppeteer = require('puppeteer');
+
+(async () => {
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  let currentURL;
+  page
+    .waitForSelector('img')
+    .then(() => console.log('First URL with image: ' + currentURL));
+  for (currentURL of [
+    'https://example.com',
+    'https://google.com',
+    'https://bbc.com',
+  ]) {
+    await page.goto(currentURL);
+  }
+  await browser.close();
+})();
 ```
 
 **NOTE** Usage of the [History API](https://developer.mozilla.org/en-US/docs/Web/API/History_API) to change the URL is considered a navigation.
