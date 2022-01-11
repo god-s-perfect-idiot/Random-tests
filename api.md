@@ -416,105 +416,57 @@
 <!-- prettier-ignore-end -->
 
 ### Overview 
-SAMAR
-Puppeteer is a Node library which provides a high-level API to control Chromium or Chrome over the DevTools Protocol.
 
-The Puppeteer API is hierarchical and mirrors the browser structure.
+Scripts are executable crawlers that can perform some pre-configured automation along with scraping data from websites. Scripts can be accessed from the Scripts Table under Project details page under the Projects page.
 
-> **NOTE** On the following diagram, faded entities are not currently represented in Puppeteer.
+Following are the attributes of a script:
 
-![puppeteer overview](https://user-images.githubusercontent.com/81942/86137523-ab2ba080-baed-11ea-9d4b-30eda784585a.png)
+- Script ID - unique ID for identifying each script
+- Script Name - Customizable name for a script
+- Script References - References to existing preset scrapers in scrapex that can be invoked in scripts using specific aliases
+- Script Params - Run time parameters that have preset default (overridden) value.
+- User Script - The driver logic for the user script.
+<!-- 
 
 - [`Puppeteer`](#class-puppeteer) communicates with the browser using [DevTools Protocol](https://chromedevtools.github.io/devtools-protocol/).
 - [`Browser`](#class-browser) instance can own multiple browser contexts.
 - [`BrowserContext`](#class-browsercontext) instance defines a browsing session and can own multiple pages.
 - [`Page`](#class-page) has at least one frame: main frame. There might be other frames created by [iframe](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe) or [frame](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/frame) tags.
 - [`Frame`](#class-frame) has at least one execution context - the default execution context - where the frame's JavaScript is executed. A Frame might have additional execution contexts that are associated with [extensions](https://developer.chrome.com/extensions).
-- [`Worker`](#class-worker) has a single execution context and facilitates interacting with [WebWorkers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API).
+- [`Worker`](#class-worker) has a single execution context and facilitates interacting with [WebWorkers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API). -->
 
-(Diagram source: [link](https://docs.google.com/drawings/d/1Q_AM6KYs9kbyLZF-Lpp5mtpAWth73Cq8IKCsWYgi8MM/edit?usp=sharing))
+### Sample user script
 
-### puppeteer vs puppeteer-core
 
-Every release since v1.7.0 we publish two packages:
-
-- [puppeteer](https://www.npmjs.com/package/puppeteer)
-- [puppeteer-core](https://www.npmjs.com/package/puppeteer-core)
-
-`puppeteer` is a _product_ for browser automation. When installed, it downloads a version of
-Chromium, which it then drives using `puppeteer-core`. Being an end-user product, `puppeteer` supports a bunch of convenient `PUPPETEER_*` env variables to tweak its behavior.
-
-`puppeteer-core` is a _library_ to help drive anything that supports DevTools protocol. `puppeteer-core` doesn't download Chromium when installed. Being a library, `puppeteer-core` is fully driven
-through its programmatic interface and disregards all the `PUPPETEER_*` env variables.
-
-To sum up, the only differences between `puppeteer-core` and `puppeteer` are:
-
-- `puppeteer-core` doesn't automatically download Chromium when installed.
-- `puppeteer-core` ignores all `PUPPETEER_*` env variables.
-
-In most cases, you'll be fine using the `puppeteer` package.
-
-However, you should use `puppeteer-core` if:
-
-- you're building another end-user product or library atop of DevTools protocol. For example, one might build a PDF generator using `puppeteer-core` and write a custom `install.js` script that downloads [`headless_shell`](https://chromium.googlesource.com/chromium/src/+/lkgr/headless/README.md) instead of Chromium to save disk space.
-- you're bundling Puppeteer to use in Chrome Extension / browser with the DevTools protocol where downloading an additional Chromium binary is unnecessary.
-- you're building a set of tools where `puppeteer-core` is one of the ingredients and you want to postpone `install.js` script execution until Chromium is about to be used.
-
-When using `puppeteer-core`, remember to change the _include_ line:
-
-```js
-const puppeteer = require('puppeteer-core');
+Here is an example of a user script: 
 ```
+let {newPage, end, except, extract, extractAndSave, store, runStore, waitFor} = __sandbox;
+let {params, } = OPTIONS;
+(async () => { try { //---> prefix
+	// -- START --
 
-You will then need to call [`puppeteer.connect([options])`](#puppeteerconnectoptions) or [`puppeteer.launch([options])`](#puppeteerlaunchoptions) with an explicit `executablePath` or `channel` option.
+	const page = await newPage()
 
-### Environment Variables
+	// CUSTOM LOGIC ON page ---> user script
 
-Puppeteer looks for certain [environment variables](https://en.wikipedia.org/wiki/Environment_variable) to aid its operations.
-If Puppeteer doesn't find them in the environment during the installation step, a lowercased variant of these variables will be used from the [npm config](https://docs.npmjs.com/cli/config).
+	// -- END --
+	end()
+} catch(e) { except(e) } })(); // ---> suffix
 
-- `HTTP_PROXY`, `HTTPS_PROXY`, `NO_PROXY` - defines HTTP proxy settings that are used to download and run the browser.
-- `PUPPETEER_SKIP_CHROMIUM_DOWNLOAD` - do not download bundled Chromium during installation step.
-- `PUPPETEER_TMP_DIR` - defines the directory to be used by Puppeteer for creating temporary files. Defaults to [`os.tmpdir()`](https://nodejs.org/api/os.html#os_os_tmpdir).
-- `PUPPETEER_DOWNLOAD_HOST` - overwrite URL prefix that is used to download Chromium. Note: this includes protocol and might even include path prefix. Defaults to `https://storage.googleapis.com`.
-- `PUPPETEER_DOWNLOAD_PATH` - overwrite the path for the downloads folder. Defaults to `<root>/.local-chromium`, where `<root>` is Puppeteer's package root.
-- `PUPPETEER_CHROMIUM_REVISION` - specify a certain version of Chromium you'd like Puppeteer to use. See [puppeteer.launch([options])](#puppeteerlaunchoptions) on how executable path is inferred. **BEWARE**: Puppeteer is only [guaranteed to work](https://github.com/puppeteer/puppeteer/#q-why-doesnt-puppeteer-vxxx-work-with-chromium-vyyy) with the bundled Chromium, use at your own risk.
-- `PUPPETEER_EXECUTABLE_PATH` - specify an executable path to be used in `puppeteer.launch`. See [puppeteer.launch([options])](#puppeteerlaunchoptions) on how the executable path is inferred. **BEWARE**: Puppeteer is only [guaranteed to work](https://github.com/puppeteer/puppeteer/#q-why-doesnt-puppeteer-vxxx-work-with-chromium-vyyy) with the bundled Chromium, use at your own risk.
-- `PUPPETEER_PRODUCT` - specify which browser you'd like Puppeteer to use. Must be one of `chrome` or `firefox`. This can also be used during installation to fetch the recommended browser binary. Setting `product` programmatically in [puppeteer.launch([options])](#puppeteerlaunchoptions) supersedes this environment variable. The product is exposed in [`puppeteer.product`](#puppeteerproduct)
-
-> **NOTE** `PUPPETEER_*` env variables are not accounted for in the [`puppeteer-core`](https://www.npmjs.com/package/puppeteer-core) package.
-
-### Working with Chrome Extensions
-
-Puppeteer can be used for testing Chrome Extensions.
-
-> **NOTE** Extensions in Chrome / Chromium currently only work in non-headless mode.
-
-The following is code for getting a handle to the [background page](https://developer.chrome.com/extensions/background_pages) of an extension whose source is located in `./my-extension`:
-
-```js
-const puppeteer = require('puppeteer');
-
-(async () => {
-  const pathToExtension = require('path').join(__dirname, 'my-extension');
-  const browser = await puppeteer.launch({
-    headless: false,
-    args: [
-      `--disable-extensions-except=${pathToExtension}`,
-      `--load-extension=${pathToExtension}`,
-    ],
-  });
-  const targets = await browser.targets();
-  const backgroundPageTarget = targets.find(
-    (target) => target.type() === 'background_page'
-  );
-  const backgroundPage = await backgroundPageTarget.page();
-  // Test the background page as you would any other page.
-  await browser.close();
-})();
 ```
+Editing the user script can be achieved by using the script editor page. Only the logic part of the script is editable while suffix and prefix will be read only.
 
-> **NOTE** It is not yet possible to test extension popups or content scripts.
+> **NOTE** Additional configuration of references and params are required in some cases, which can be overridden in runtime.
+
+
+### Script Objects
+
+- page: A page object is returned by invoking an awaited newPage() function. This object loads a webpage as well as interacts with it.
+- references: A external reference to a scraper defined in scrapex so as to make use of the existing tag-based APIs.
+- store: An outer level store that shares its inventory with other scripts in the same Project. This store is to be used when multiple script may be extracting data from different websites but the data accessed from one store for uniformity. Stores script specific data. This is the primary store choice.
+- runStore: An inner level store that supposedly stores run-specific data. Although capable of storing all data, it is advised to use said store for debugging purposes as the use script has no access to stored data other than manually fetching the data by UI. It lacks the fetch APIs. 
+- params: User parameters passed to the script that can be used to access passed values. This can be overridden in runtime to use non-default values.
+
 
 ### class: Puppeteer
 
