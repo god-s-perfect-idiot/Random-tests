@@ -456,7 +456,30 @@ let {params, } = OPTIONS;
 ```
 Editing the user script can be achieved by using the script editor page. Only the logic part of the script is editable while suffix and prefix will be read only.
 
-> **NOTE** Additional configuration of references and params are required in some cases, which can be overridden in runtime.
+Here is a sample script that performs certain actions
+```js
+let {newPage, end, except, extract, extractAndSave, store, runStore, waitFor} = __sandbox;
+let {params, } = OPTIONS;
+(async () => { try {
+	// -- START --
+
+	const page = await newPage(); 	//creates new page
+	await page.goto('https://www.example.org');	//opens example.org
+	await store.saveOne('store', {id: 1, msg: 'data'})	//saves to store
+	console.log(await store.getOne('store', 1))	//fetches from store
+	if (await page.exists('a')) {	//check if anchor exists
+		await page.click('a');	//click anchor
+		await waitFor(2000);	//wait 2 seconds
+		await page.saveSnapshot('clicked the anchor');	//save a snapshot of page
+
+	}
+	await page.close();	//close page
+
+	// -- END --
+	end()
+} catch(e) { except(e) } })();
+```
+
 > **NOTE** On script errors, snapshots of all valid open pages are saved. If none were to be found, it's likely that the pages never had any context in the first place.
 
 ### Script Objects
