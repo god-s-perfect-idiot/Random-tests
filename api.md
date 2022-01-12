@@ -385,7 +385,7 @@ Terminates script.
 
 - Return <[void]> terminates session
 
-### extractAndSave(scraper, url[, idFn])
+#### extractAndSave(scraper, url[, idFn])
 
 Extracts the scrapex scraper's data from the given url and saves it to the project-level store under the name of the scraper. 
 
