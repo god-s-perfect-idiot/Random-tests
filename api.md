@@ -358,7 +358,7 @@ let {params, } = OPTIONS;
 
 ### Script Objects
 
-- page: A page object is returned by invoking an awaited newPage() function. This object loads a webpage as well as interacts with it.
+- [`page`](#class-page): A page object is returned by invoking an awaited newPage() function. This object loads a webpage as well as interacts with it.
 - references: A external reference to a scraper defined in scrapex so as to make use of the existing tag-based APIs.
 - store: An outer level store that shares its inventory with other scripts in the same Project. This store is to be used when multiple script may be extracting data from different websites but the data accessed from one store for uniformity. Stores script specific data. This is the primary store choice.
 - runStore: An inner level store that supposedly stores run-specific data. Although capable of storing all data, it is advised to use said store for debugging purposes as the use script has no access to stored data other than manually fetching the data by UI. It lacks the fetch APIs. 
