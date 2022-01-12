@@ -1053,3 +1053,113 @@ await page.mouse.move(
 
 await page.mouse.wheel({ deltaY: -100 });
 ```
+
+
+
+### class: Store
+
+Scrapex stores data in collections and serves it to the user through the script or API as required. Store is an outer level store that shares its inventory with other scripts in the same Project. This store is to be used when multiple script may be extracting data from different websites but the data accessed from one store for uniformity.
+
+Script store is the default store and the snippet below is a sample store interaction:
+
+
+```js
+  await store.saveOne('random-store', {id: 'some', data: 'other'});
+  const data = await store.getOne('random-store', 'some');
+```
+
+#### store.getOne(collection, id)
+
+Retrieves a single record from the store. 
+
+- collection <[string]> Name of the collection in the store that has the data
+- id <[string]> id of the data item that the user wishes to fetch
+- return <[Promise]<[Object]>> Promise that resolves to the data item that was fetched as per user request
+
+#### store.getAll(collection [, options])
+
+Retrieves multiple records from the store. 
+
+- collection <[string]> Name of the collection in the store that has the data
+- options <[Object]> : 
+ - limit <[string]> Limit of the amount of records fetched. Default is 50
+ - offset <[string]> Offset of data origin. Default is 0
+ - only <[Array]<[string]>> only fetch the following columns from the DB and not entire records. 
+- return <[Promise]<[Array]<[Object]>>> Promise that resolves to all data items that was fetched as per user request
+
+```js
+  await store.getAll('store', {
+    limit: 100,
+    offset: 500,
+    only:  ['id']
+  })
+```
+
+#### store.saveOne(collection, data[, metadata, idFn])
+
+Saves one data item into the store. 
+
+- collection <[string]> Name of the collection in the store that has the data
+- data <[Object]>: 
+ - id <[string]> the unique identification keyword for the datum. It is required to store the data. Method throws if not passed.
+ - [key] <[string]> data to be stored. 
+- metadata <[Object]> the metadata of the object being stored
+- idFn <[function]> An id generating function if required
+- return <[Promise]> Promise that resolves to the data item being saved
+
+Sample function: 
+```js
+  await store.saveOne('store', {data: "val"}, {metadata: 'json'}, () => {return 1;})
+```
+
+#### store.saveMany(collection, records)
+
+Saves several data items into the store. 
+
+- collection <[string]> Name of the collection in the store that has the data
+- records <[Array]<[Object]>>: each record will be a data item with the following fields
+ - id <[string]> the unique identification keyword for the datum. It is required to store the data. Method throws if not passed.
+ - [key] <[string]> data to be stored. 
+- idFn <[function]> An id generating function if required
+- return <[Promise]> Promise that resolves to the data items being saved
+
+### class: runStore
+
+Scrapex stores data in collections and serves it to the user through the script or API as required. runStore is an inner level store that supposedly stores run-specific data. Although capable of storing all data, it is advised to use said store for debugging purposes as the use script has no access to stored data other than manually fetching the data by UI. It lacks the fetch APIs..
+
+Run store lacks the get APIs but retains both save APIs the other stores have. 
+The snippet below is a sample store interaction:
+
+
+```js
+  await runstore.saveOne('random-store', {id: 'some', data: 'other'});
+  await runstore.saveMany('random-store', [{id: 'some2', data: 'other'}]);
+```
+
+#### runStore.saveOne(collection, data[, metadata, idFn])
+
+Saves one data item into the run store. 
+
+- collection <[string]> Name of the collection in the store that has the data
+- data <[Object]>: 
+ - id <[string]> the unique identification keyword for the datum. It is required to store the data. Method throws if not passed.
+ - [key] <[string]> data to be stored. 
+- metadata <[Object]> the metadata of the object being stored
+- idFn <[function]> An id generating function if required
+- return <[Promise]> Promise that resolves to the data item being saved
+
+Sample function: 
+```js
+  await runstore.saveOne('store', {data: "val"}, {metadata: 'json'}, () => {return 1;})
+```
+
+#### runStore.saveMany(collection, records)
+
+Saves several data items into the run store. 
+
+- collection <[string]> Name of the collection in the store that has the data
+- records <[Array]<[Object]>>: each record will be a data item with the following fields
+ - id <[string]> the unique identification keyword for the datum. It is required to store the data. Method throws if not passed.
+ - [key] <[string]> data to be stored. 
+- idFn <[function]> An id generating function if required
+- return <[Promise]> Promise that resolves to the data items being saved
