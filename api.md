@@ -360,8 +360,8 @@ let {params, } = OPTIONS;
 
 - [`page`](#class-page): A page object is returned by invoking an awaited newPage() function. This object loads a webpage as well as interacts with it.
 - references: A external reference to a scraper defined in scrapex so as to make use of the existing tag-based APIs.
-- store: An outer level store that shares its inventory with other scripts in the same Project. This store is to be used when multiple script may be extracting data from different websites but the data accessed from one store for uniformity. Stores script specific data. This is the primary store choice.
-- runStore: An inner level store that supposedly stores run-specific data. Although capable of storing all data, it is advised to use said store for debugging purposes as the use script has no access to stored data other than manually fetching the data by UI. It lacks the fetch APIs. 
+- [`store`](#class-store): An outer level store that shares its inventory with other scripts in the same Project. This store is to be used when multiple script may be extracting data from different websites but the data accessed from one store for uniformity. Stores script specific data. This is the primary store choice.
+- [`runStore`](#class-runStore): An inner level store that supposedly stores run-specific data. Although capable of storing all data, it is advised to use said store for debugging purposes as the use script has no access to stored data other than manually fetching the data by UI. It lacks the fetch APIs. 
 - params: User parameters passed to the script that can be used to access passed values. This can be overridden in runtime to use non-default values.
 
 ### General functions
@@ -383,7 +383,7 @@ Extracts the scrapex scraper's data from the given url and saves it to the proje
 
 #### newPage()
 
-Returns a promise returning the page object. This spawns a new page object. The page will be a chromium tab instance. 
+Returns a promise returning the [page](#class-page) object. This spawns a new page object. The page will be a chromium tab instance. 
 
 - Return <[Promise]<[Page]>> returns a Promise with a page object
 
@@ -429,7 +429,7 @@ const [response] = await Promise.all([
 ]);
 ```
 
-> **NOTE** This race condition is handled by the `page.clickAndWait` API.
+> **NOTE** This race condition is handled by the [`page.clickAndWait`](#pageclickandwaitselector-options) API.
 
 #### page.clickAndWait(selector[, options])
 
@@ -472,7 +472,7 @@ const [response] = await Promise.all([
 ]);
 ```
 
-> **NOTE** This race condition is handled by the `page.clickTagAndWait` API.
+> **NOTE** This race condition is handled by the [`page.clickTagAndWait`](#pageclickandwaitselector-options) API.
 
 
 #### page.clickTagAndWait(scraper, tag[, options])
@@ -552,15 +552,15 @@ page has JavaScript enabled, `false` otherwise.
 
 #### page.keyboard
 
-Invokes the keyboard object in page.
+Invokes the [keyboard](#class-mouse) object in page.
 
-- returns: <[Keyboard]>
+- returns: <[Keyboard](#class-keyboard)>
 
 #### page.mouse
 
-Invokes the mouse object in page.
+Invokes the [mouse](#class-mouse) object in page.
 
-- returns: <[Mouse]>
+- returns: <[Mouse](#class-mouse)>
 
 #### page.reload([options])
 
@@ -589,7 +589,7 @@ Extracts the content of the page.
 - `name` <[string]> Name of the scraper reference
 - returns: <[Promise]<[void]>> extracted text content of the value of the scraper.
 
-> **NOTE** This API is deprecated. Please check out the extract API.
+> **NOTE** This API is deprecated. Please check out the [extract](#pageextractscraper) API.
 
 
 #### page.scrapeSelector(selector[, options])
