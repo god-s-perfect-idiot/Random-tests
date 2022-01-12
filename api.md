@@ -366,19 +366,6 @@ let {params, } = OPTIONS;
 
 ### General functions
 
-#### waitFor(timeout) 
-
-Returns a promise waiting until timeout ms has passed. (Not page.waitFor)
-
-- timeout <[number]> the amount of time in milliseconds to work
-- Return <[Promise]> Promise that resolves after timeout milliseconds
-
-#### newPage()
-
-Returns a promise returning the page object. This spawns a new page object. The page will be a chromium tab instance. 
-
-- Return <[Promise]<[Page]>> returns a Promise with a page object
-
 #### end()
 
 Terminates script.
@@ -393,6 +380,19 @@ Extracts the scrapex scraper's data from the given url and saves it to the proje
 - url <[string]> url to crawl
 - idFn <[Function]> an ID generating function that creates the data ID
 - Return <[Promise]> A promise that resolves to saving the extracted data
+
+#### newPage()
+
+Returns a promise returning the page object. This spawns a new page object. The page will be a chromium tab instance. 
+
+- Return <[Promise]<[Page]>> returns a Promise with a page object
+
+#### waitFor(timeout) 
+
+Returns a promise waiting until timeout ms has passed. (Not page.waitFor)
+
+- timeout <[number]> the amount of time in milliseconds to work
+- Return <[Promise]> Promise that resolves after timeout milliseconds
 
 ### class: Page
 
