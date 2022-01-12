@@ -439,7 +439,7 @@ Following are the attributes of a script:
 
 
 Here is an example of a user script: 
-```
+```js
 let {newPage, end, except, extract, extractAndSave, store, runStore, waitFor} = __sandbox;
 let {params, } = OPTIONS;
 (async () => { try { //---> prefix
@@ -457,7 +457,7 @@ let {params, } = OPTIONS;
 Editing the user script can be achieved by using the script editor page. Only the logic part of the script is editable while suffix and prefix will be read only.
 
 > **NOTE** Additional configuration of references and params are required in some cases, which can be overridden in runtime.
-
+> **NOTE** On script errors, snapshots of all valid open pages are saved. If none were to be found, it's likely that the pages never had any context in the first place.
 
 ### Script Objects
 
