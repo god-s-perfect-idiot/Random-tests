@@ -1,0 +1,19 @@
+{
+  "name": "random-tests",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/god-s-perfect-idiot/Random-tests.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/god-s-perfect-idiot/Random-tests/issues"
+  },
+  "homepage": "https://github.com/god-s-perfect-idiot/Random-tests#readme"
+}
