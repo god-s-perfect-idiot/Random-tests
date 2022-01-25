@@ -10,15 +10,9 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
-
-    runs-on: ['self-hosted']
-
-    strategy:
-      matrix:
-        node-version: [12.x, 14.x, 16.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
+  Test:
+    runs-on: [self-hosted]
     steps:
-    - uses: actions/checkout@v2
-    - run: npm test
+      - uses: actions/checkout@v2
+      - name: run test
+        run: npm test
